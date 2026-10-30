@@ -1,0 +1,32 @@
+{
+  "name": "technoyouth-backend",
+  "version": "2.0.0",
+  "description": "Backend de TechnoYouth - Plataforma vocacional para jóvenes",
+  "main": "Server.js",
+  "scripts": {
+    "start": "node Server.js",
+    "dev": "nodemon Server.js"
+  },
+  "keywords": [
+    "vocacional",
+    "educacion",
+    "jovenes",
+    "technoyouth"
+  ],
+  "author": "TechnoYouth",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "firebase-admin": "^13.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0",
+    "sqlite3": "^6.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

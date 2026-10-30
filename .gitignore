@@ -1,0 +1,30 @@
+# Dependencias
+node_modules/
+
+# Base de datos local
+*.db
+*.db-journal
+database.db
+
+# Subidas de archivos
+uploads/
+Backend/uploads/
+
+# Archivos de credenciales y secretos
+.env
+*.env
+serviceAccountKey.json
+firebase-service-account.json
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*

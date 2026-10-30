@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechnoYouth - Plataforma vocacional que ayuda a jóvenes a descubrir su potencial profesional">
+    <title>TechnoYouth - Descubre tu Potencial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Google reCAPTCHA v2 API (carga explícita) -->
+    <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaCargado&render=explicit" async defer></script>
+</head>
+<body>
+
+<!-- Contenedor de notificaciones Toast -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- ====== NAVEGACIÓN ====== -->
+<nav id="navbar" class="navbar">
+    <div class="nav-brand" onclick="mostrar('landing')">
+        <img src="Img/TechnoYouth.png" alt="Logo de TechnoYouth" class="nav-logo">
+        <span class="nav-title">TechnoYouth</span>
+    </div>
+    <div class="nav-links">
+        <button onclick="mostrar('registro')" class="nav-btn" id="navRegistro">Registro</button>
+        <button onclick="mostrar('login')" class="nav-btn" id="navLogin">Iniciar Sesión</button>
+        
+        <!-- Píldora de usuario con avatar en navbar -->
+        <div class="nav-user-pill" id="navUserPill" style="display:none;" onclick="mostrar('perfil')" title="Ir a mi perfil">
+            <img id="navUserAvatar" src="Img/TechnoYouth_crop.png" alt="Avatar" class="nav-avatar">
+            <span id="navUserName" class="nav-username">Mi Cuenta</span>
+        </div>
+
+        <button onclick="mostrar('perfil')" class="nav-btn nav-btn-auth" id="navPerfil" style="display:none;">Mi Perfil</button>
+        <button onclick="mostrar('misRutas')" class="nav-btn nav-btn-auth" id="navRutas" style="display:none;">Mis Rutas</button>
+        <button onclick="mostrar('testVocacional')" class="nav-btn nav-btn-auth" id="navTest" style="display:none;">Test Vocacional</button>
+        <button onclick="cerrarSesion()" class="nav-btn nav-btn-logout" id="navLogout" style="display:none;">Cerrar Sesión</button>
+    </div>
+</nav>
+
+<!-- ====== BANNER ====== -->
+<header class="banner">
+    <div class="banner-stars"></div>
+    <div class="banner-planet">
+        <div class="planet-ball"></div>
+        <div class="planet-ring"></div>
+    </div>
+    <div class="banner-moon"></div>
+    <div class="banner-floor"></div>
+    <div class="banner-content">
+        <h2 class="banner-title">Explora. Descubre. <span class="gradient-text">Crea tu futuro.</span></h2>
+        <p class="banner-text">Tu camino profesional empieza con conocerte mejor.</p>
+    </div>
+</header>
+
+<!-- ====== CONTENIDO PRINCIPAL ====== -->
+<main class="main-content">
+
+    <!-- LANDING / BIENVENIDA -->
+    <section id="landing" class="seccion-pantalla">
+        <div class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Descubre tu <span class="gradient-text">Potencial</span></h1>
+                <p class="hero-subtitle">Cree y confía en los jóvenes, son nuestro futuro.</p>
+                <p class="hero-desc">Realiza nuestro test vocacional y descubre qué camino profesional se adapta mejor a tus habilidades, intereses y valores.</p>
+                <div class="hero-buttons">
+                    <button onclick="mostrar('registro')" class="btn-primary btn-lg">Comenzar Ahora</button>
+                    <button onclick="mostrar('login')" class="btn-secondary btn-lg">Ya tengo cuenta</button>
+                </div>
+            </div>
+            <div class="hero-features">
+                <div class="feature-card">
+                    <div class="feature-icon icon-test">◎</div>
+                    <h3>Test Vocacional</h3>
+                    <p>8 preguntas diseñadas para identificar tu perfil profesional</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-resultados">◈</div>
+                    <h3>Resultados Detallados</h3>
+                    <p>Análisis completo con recomendaciones de carreras</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-historial">⟳</div>
+                    <h3>Rutas Formativas</h3>
+                    <p>Aprende con cursos interactivos, videos y quizzes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REGISTRO -->
+    <section id="registro" class="seccion-pantalla" style="display:none;">
+        <div class="form-card glass-card">
+            <div class="form-header">
+                <div class="form-icon icon-registro">✦</div>
+                <h2>Crear Cuenta</h2>
+                <p>Únete a TechnoYouth y descubre tu vocación</p>
+            </div>
+            <div class="form-body">
+                <!-- Subida y Previsualización de Foto de Perfil -->
+                <div class="photo-upload-group">
+                    <div class="photo-preview-wrapper" onclick="document.getElementById('fotoRegistro').click()">
+                        <img id="registroFotoPreview" src="Img/TechnoYouth_crop.png" alt="Vista previa" class="avatar-preview-img" style="display:none;">
+                        <div id="registroFotoPlaceholder" class="avatar-placeholder-box">
+                            <span class="placeholder-icon">📷</span>
+                            <span class="placeholder-text">Agregar foto</span>
+                        </div>
+                    </div>
+                    <input type="file" id="fotoRegistro" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="previsualizarFotoRegistro(event)">
+                    <small class="form-hint">Opcional: JPG, PNG o WEBP (máx. 2 MB)</small>
+                </div>
+
+                <div class="input-group">
+                    <input id="nombre" type="text" placeholder=" " required autocomplete="name">
+                    <label for="nombre">Nombre completo</label>
+                </div>
+                <div class="input-group">
+                    <input id="email" type="email" placeholder=" " required autocomplete="email">
+                    <label for="email">Correo electrónico</label>
+                </div>
+                <div class="input-group">
+                    <input id="password" type="password" placeholder=" " required autocomplete="new-password">
+                    <label for="password">Contraseña (mínimo 6 caracteres)</label>
+                    <button type="button" class="btn-toggle-pass" onclick="togglePassword('password', this)">⊙</button>
+                </div>
+                <div class="input-group">
+                    <input id="passwordConfirm" type="password" placeholder=" " required autocomplete="new-password">
+                    <label for="passwordConfirm">Confirmar contraseña</label>
+                    <button type="button" class="btn-toggle-pass" onclick="togglePassword('passwordConfirm', this)">⊙</button>
+                </div>
+                <div class="input-group">
+                    <input id="edad" type="number" placeholder=" " min="10" max="30">
+                    <label for="edad">Tu edad</label>
+                </div>
+
+                <button class="btn-primary btn-full" id="btnRegistrar" onclick="registrar()">
+                    <span class="btn-text">Crear cuenta</span>
+                    <span class="btn-loader" style="display:none;"></span>
+                </button>
+
+                <!-- Divisor Social -->
+                <div class="form-divider">
+                    <span>o regístrate con</span>
+                </div>
+
+                <div class="social-auth-buttons">
+                    <button type="button" class="btn-social btn-google" onclick="loginGoogle()">
+                        <svg class="social-icon" viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.6 3.6 1.8 7.3l3.7 2.9C6.4 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5.1 3.7-8.8z"/><path fill="#FBBC05" d="M5.5 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.8 7.3C.7 9.5 0 12 0 14.8s.7 5.3 1.8 7.5l3.7-2.9z"/><path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.6-2.2-6.5-5.2L1.8 16.5C3.6 20.2 7.4 23.5 12 23.5z"/></svg>
+                        <span>Google</span>
+                    </button>
+                    <button type="button" class="btn-social btn-microsoft" onclick="loginMicrosoft()">
+                        <svg class="social-icon" viewBox="0 0 23 23" width="18" height="18"><path fill="#f35325" d="M1 1h10v10H1z"/><path fill="#81bc06" d="M12 1h10v10H12z"/><path fill="#05a6f0" d="M1 12h10v10H1z"/><path fill="#ffba08" d="M12 12h10v10H12z"/></svg>
+                        <span>Microsoft</span>
+                    </button>
+                </div>
+
+                <p class="form-footer-text">¿Ya tienes cuenta? <a href="#" onclick="mostrar('login')">Inicia sesión</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOGIN -->
+    <section id="login" class="seccion-pantalla" style="display:none;">
+        <div class="form-card glass-card">
+            <div class="form-header">
+                <div class="form-icon icon-login">↩</div>
+                <h2>Bienvenido de nuevo</h2>
+                <p>Inicia sesión en TechnoYouth para continuar</p>
+            </div>
+            <div class="form-body">
+                <div class="input-group">
+                    <input id="emailLogin" type="email" placeholder=" " required autocomplete="username">
+                    <label for="emailLogin">Correo electrónico</label>
+                </div>
+                <div class="input-group">
+                    <input id="passwordLogin" type="password" placeholder=" " required autocomplete="current-password">
+                    <label for="passwordLogin">Contraseña</label>
+                    <button type="button" class="btn-toggle-pass" onclick="togglePassword('passwordLogin', this)">⊙</button>
+                </div>
+
+                <!-- Google reCAPTCHA v2 Widget Container -->
+                <div class="recaptcha-center-container">
+                    <div id="recaptchaWidget" class="recaptcha-box"></div>
+                </div>
+
+                <button class="btn-primary btn-full" id="btnLogin" onclick="login()">
+                    <span class="btn-text">Iniciar sesión</span>
+                    <span class="btn-loader" style="display:none;"></span>
+                </button>
+
+                <!-- Divisor Social -->
+                <div class="form-divider">
+                    <span>o ingresa con</span>
+                </div>
+
+                <div class="social-auth-buttons">
+                    <button type="button" class="btn-social btn-google" onclick="loginGoogle()">
+                        <svg class="social-icon" viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.6 3.6 1.8 7.3l3.7 2.9C6.4 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5.1 3.7-8.8z"/><path fill="#FBBC05" d="M5.5 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.8 7.3C.7 9.5 0 12 0 14.8s.7 5.3 1.8 7.5l3.7-2.9z"/><path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.6-2.2-6.5-5.2L1.8 16.5C3.6 20.2 7.4 23.5 12 23.5z"/></svg>
+                        <span>Google</span>
+                    </button>
+                    <button type="button" class="btn-social btn-microsoft" onclick="loginMicrosoft()">
+                        <svg class="social-icon" viewBox="0 0 23 23" width="18" height="18"><path fill="#f35325" d="M1 1h10v10H1z"/><path fill="#81bc06" d="M12 1h10v10H12z"/><path fill="#05a6f0" d="M1 12h10v10H1z"/><path fill="#ffba08" d="M12 12h10v10H12z"/></svg>
+                        <span>Microsoft</span>
+                    </button>
+                </div>
+
+                <p class="form-footer-text">¿No tienes cuenta? <a href="#" onclick="mostrar('registro')">Regístrate aquí</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PERFIL -->
+    <section id="perfil" class="seccion-pantalla" style="display:none;">
+        <div class="perfil-container">
+            <!-- Tarjeta de info del usuario -->
+            <div class="perfil-info glass-card" id="infoPerfil">
+                <p>Cargando datos...</p>
+            </div>
+            <!-- Último resultado -->
+            <div class="perfil-resultado glass-card" id="ultimoResultado" style="display:none;">
+                <h3>Tu Último Resultado</h3>
+                <div id="contenidoUltimoResultado"></div>
+            </div>
+            <!-- Historial -->
+            <div class="perfil-historial glass-card" id="seccionHistorial" style="display:none;">
+                <h3>Historial de Tests</h3>
+                <div id="contenedorHistorial"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TEST VOCACIONAL -->
+    <section id="testVocacional" class="seccion-pantalla" style="display:none;">
+        <div class="test-container glass-card">
+            <div class="test-header">
+                <h2>Test Vocacional</h2>
+                <p>Selecciona la opción que más te identifique en cada pregunta</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="barraProgreso"></div>
+                </div>
+                <span class="progress-text" id="textoProgreso">Pregunta 1 de 8</span>
+            </div>
+            <div id="contenedorPreguntas" class="test-body"></div>
+        </div>
+    </section>
+
+    <!-- RESULTADOS -->
+    <section id="resultados" class="seccion-pantalla" style="display:none;">
+        <div class="resultados-container">
+            <div class="resultado-header glass-card">
+                <h2>¡Resultados de tu Test!</h2>
+                <div id="contenidoResultados"></div>
+            </div>
+            <div class="resultado-actions">
+                <button class="btn-primary" onclick="mostrar('misRutas')">Ir a mis Cursos</button>
+                <button class="btn-secondary" onclick="mostrar('perfil')">Ver mi Perfil</button>
+                <button class="btn-secondary" onclick="mostrar('testVocacional')">Repetir Test</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MIS RUTAS (CURSOS) -->
+    <section id="misRutas" class="seccion-pantalla" style="display:none;">
+        <div class="rutas-container">
+            <div class="rutas-header glass-card">
+                <div class="form-icon icon-resultados">◈</div>
+                <h2>Mis Rutas de Aprendizaje</h2>
+                <p>Cursos personalizados según tu perfil vocacional</p>
+            </div>
+            <div id="contenedorRutas" class="rutas-grid"></div>
+        </div>
+    </section>
+
+    <!-- VISTA DE CURSO (MÓDULOS) -->
+    <section id="vistaCurso" class="seccion-pantalla" style="display:none;">
+        <div class="curso-header glass-card">
+            <button class="btn-secondary" onclick="mostrar('misRutas')" style="margin-bottom:20px;">← Volver a mis rutas</button>
+            <h2 id="tituloCurso" class="gradient-text">Nombre del Curso</h2>
+            <p id="descCurso" style="color: var(--text-secondary); margin-bottom:24px;">Descripción del curso...</p>
+            <div id="contenedorModulos" class="modulos-grid"></div>
+        </div>
+    </section>
+
+    <!-- VISTA DE MÓDULO (CONTENIDO) -->
+    <section id="vistaModulo" class="seccion-pantalla" style="display:none;">
+        <div class="modulo-container">
+            <div class="modulo-card glass-card">
+                <button class="btn-secondary" id="btnVolverCurso" style="margin-bottom:20px;">← Volver al curso</button>
+                <h2 id="tituloModulo" class="gradient-text" style="margin-bottom:24px;">Título del Módulo</h2>
+                
+                <div class="video-wrapper" id="contenedorVideo" style="margin-bottom:30px;"></div>
+                
+                <div class="lectura-card" style="margin-bottom:40px;">
+                    <div id="contenedorLectura" class="lectura-content"></div>
+                </div>
+                
+                <div class="quiz-section glass-card" id="seccionQuiz" style="background: rgba(255,255,255,0.02);">
+                    <h3 style="margin-bottom:20px; color: var(--accent-primary);">✦ Quiz de Conocimiento</h3>
+                    <div id="preguntaQuiz" class="pregunta-texto" style="font-size: 1.1rem; text-align: left;"></div>
+                    <div id="opcionesQuiz" class="opciones-grid" style="margin-top:20px;"></div>
+                    <button id="btnSiguienteQuiz" class="btn-primary" style="display:none; margin-top:24px; width:100%;">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ====== FOOTER ====== -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>© 2026 <strong>TechnoYouth</strong> — Cree y confía en los jóvenes</p>
+        <p class="footer-sub">Plataforma de orientación vocacional para jóvenes</p>
+    </div>
+</footer>
+
+<!-- Entrada JavaScript como Módulo ES -->
+<script type="module" src="app.js"></script>
+</body>
+</html>
