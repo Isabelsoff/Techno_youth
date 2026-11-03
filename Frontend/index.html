@@ -7,6 +7,7 @@
     <title>TechnoYouth - Descubre tu Potencial</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/jpeg" href="Img/logo-technoyouth.jpeg">
     <!-- Google reCAPTCHA v2 API (carga explícita) -->
     <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaCargado&render=explicit" async defer></script>
 </head>
@@ -18,7 +19,9 @@
 <!-- ====== NAVEGACIÓN ====== -->
 <nav id="navbar" class="navbar">
     <div class="nav-brand" onclick="mostrar('landing')">
-        <img src="Img/TechnoYouth.png" alt="Logo de TechnoYouth" class="nav-logo">
+        <span style="width:42px; height:42px; border-radius:50%; overflow:hidden; display:inline-block; flex-shrink:0; border:1.5px solid rgba(0,210,255,.5);">
+            <img src="Img/logo-technoyouth.jpeg" alt="Logo de TechnoYouth" style="display:block; width:62px; height:auto; margin:-4px 0 0 -10px;">
+        </span>
         <span class="nav-title">TechnoYouth</span>
     </div>
     <div class="nav-links">
@@ -34,6 +37,7 @@
         <button onclick="mostrar('perfil')" class="nav-btn nav-btn-auth" id="navPerfil" style="display:none;">Mi Perfil</button>
         <button onclick="mostrar('misRutas')" class="nav-btn nav-btn-auth" id="navRutas" style="display:none;">Mis Rutas</button>
         <button onclick="mostrar('testVocacional')" class="nav-btn nav-btn-auth" id="navTest" style="display:none;">Test Vocacional</button>
+        <button onclick="mostrar('agente')" class="nav-btn nav-btn-auth" id="navAgente" style="display:none;">Asesor IA</button>
         <button onclick="cerrarSesion()" class="nav-btn nav-btn-logout" id="navLogout" style="display:none;">Cerrar Sesión</button>
     </div>
 </nav>
@@ -59,6 +63,9 @@
     <!-- LANDING / BIENVENIDA -->
     <section id="landing" class="seccion-pantalla">
         <div class="hero">
+            <div style="width:170px; height:170px; border-radius:50%; overflow:hidden; margin:0 auto 24px; box-shadow:0 0 40px rgba(0,210,255,.25);">
+                <img src="Img/logo-technoyouth.jpeg" alt="TechnoYouth" style="display:block; width:106%; height:106%; margin:-3% 0 0 -3%; object-fit:cover;">
+            </div>
             <div class="hero-content">
                 <h1 class="hero-title">Descubre tu <span class="gradient-text">Potencial</span></h1>
                 <p class="hero-subtitle">Cree y confía en los jóvenes, son nuestro futuro.</p>
@@ -92,7 +99,9 @@
     <section id="registro" class="seccion-pantalla" style="display:none;">
         <div class="form-card glass-card">
             <div class="form-header">
-                <div class="form-icon icon-registro">✦</div>
+                <div style="width:88px; height:88px; border-radius:50%; overflow:hidden; margin:0 auto 12px; box-shadow:0 0 28px rgba(0,210,255,.25);">
+                    <img src="Img/logo-technoyouth.jpeg" alt="TechnoYouth" style="display:block; width:106%; height:106%; margin:-3% 0 0 -3%; object-fit:cover;">
+                </div>
                 <h2>Crear Cuenta</h2>
                 <p>Únete a TechnoYouth y descubre tu vocación</p>
             </div>
@@ -163,7 +172,9 @@
     <section id="login" class="seccion-pantalla" style="display:none;">
         <div class="form-card glass-card">
             <div class="form-header">
-                <div class="form-icon icon-login">↩</div>
+                <div style="width:88px; height:88px; border-radius:50%; overflow:hidden; margin:0 auto 12px; box-shadow:0 0 28px rgba(0,210,255,.25);">
+                    <img src="Img/logo-technoyouth.jpeg" alt="TechnoYouth" style="display:block; width:106%; height:106%; margin:-3% 0 0 -3%; object-fit:cover;">
+                </div>
                 <h2>Bienvenido de nuevo</h2>
                 <p>Inicia sesión en TechnoYouth para continuar</p>
             </div>
@@ -177,6 +188,10 @@
                     <label for="passwordLogin">Contraseña</label>
                     <button type="button" class="btn-toggle-pass" onclick="togglePassword('passwordLogin', this)">⊙</button>
                 </div>
+
+                <p style="text-align:right; margin:-10px 0 14px; font-size:0.85rem;">
+                    <a href="#" onclick="abrirRecuperar(); return false;" style="color:var(--accent-primary); text-decoration:none; font-weight:500;">¿Olvidaste tu contraseña?</a>
+                </p>
 
                 <!-- Google reCAPTCHA v2 Widget Container -->
                 <div class="recaptcha-center-container">
@@ -206,6 +221,65 @@
 
                 <p class="form-footer-text">¿No tienes cuenta? <a href="#" onclick="mostrar('registro')">Regístrate aquí</a></p>
             </div>
+        </div>
+    </section>
+
+    <!-- RECUPERAR CONTRASEÑA -->
+    <section id="recuperar" class="seccion-pantalla" style="display:none;">
+        <div class="form-card glass-card">
+            <div class="form-header">
+                <div class="form-icon icon-login">✉</div>
+                <h2>Recuperar contraseña</h2>
+                <p>Te enviaremos un enlace a tu correo para crear una nueva</p>
+            </div>
+            <div class="form-body">
+                <div class="input-group">
+                    <input id="emailRecuperar" type="email" placeholder=" " required autocomplete="email">
+                    <label for="emailRecuperar">Correo electrónico</label>
+                </div>
+                <button class="btn-primary btn-full" id="btnRecuperar" onclick="recuperarPassword()">
+                    <span class="btn-text">Enviar enlace</span>
+                    <span class="btn-loader" style="display:none;"></span>
+                </button>
+                <p class="form-footer-text">¿La recordaste? <a href="#" onclick="mostrar('login')">Volver a iniciar sesión</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPLETAR PERFIL (edad obligatoria con Google o Microsoft) -->
+    <section id="completarPerfil" class="seccion-pantalla" style="display:none;">
+        <div class="form-card glass-card">
+            <div class="form-header">
+                <div class="form-icon icon-registro">✦</div>
+                <h2>Completa tu perfil</h2>
+                <p>Necesitamos tu edad para continuar</p>
+            </div>
+            <div class="form-body">
+                <div class="input-group">
+                    <input id="edadPerfil" type="number" placeholder=" " min="10" max="30" required>
+                    <label for="edadPerfil">Tu edad</label>
+                </div>
+                <button class="btn-primary btn-full" id="btnGuardarEdad" onclick="guardarEdad()">
+                    <span class="btn-text">Guardar y continuar</span>
+                    <span class="btn-loader" style="display:none;"></span>
+                </button>
+                <p class="form-footer-text"><a href="#" onclick="cerrarSesion(); return false;">Cancelar y cerrar sesión</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ASESOR VOCACIONAL CON IA (agente Streamlit) -->
+    <section id="agente" class="seccion-pantalla" style="display:none;">
+        <div class="glass-card" style="padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+                <div>
+                    <h2 style="font-size:1.4rem;">Asesor Vocacional con IA</h2>
+                    <p style="color:var(--text-secondary); font-size:0.9rem;">Ingresa tus puntajes del test y descubre carreras y universidades.</p>
+                </div>
+                <a id="agenteAbrirNueva" class="btn-secondary" target="_blank" rel="noopener" style="text-decoration:none; padding:8px 16px; font-size:0.85rem;">Abrir en pestaña nueva ↗</a>
+            </div>
+            <iframe id="agenteFrame" title="Asesor Vocacional con IA" loading="lazy" allow="clipboard-write"
+                    style="width:100%; height:78vh; border:0; border-radius:12px; background:#0e1117;"></iframe>
         </div>
     </section>
 

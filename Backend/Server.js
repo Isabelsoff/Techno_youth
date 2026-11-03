@@ -17,7 +17,7 @@ const cursosCientifico = require('./cursosData');
 const cursosCreativo = require('./cursosCreativo');
 const cursosPractico = require('./cursosPractico');
 const cursosSocial = require('./cursosSocial');
-const videosModulos = require('./videosModulos');
+const { sincronizarVideos } = require('./videosSync');
 
 // =============================================
 // CONFIGURACIÓN BÁSICA Y RUTAS DE DIRECTORIOS
@@ -337,10 +337,7 @@ async function initDB() {
 
             if (Array.isArray(curso.modulos)) {
                 for (const m of curso.modulos) {
-                    let videoUrl = m.video_url || '';
-                    if (!videoUrl && videosModulos[m.titulo]) {
-                        videoUrl = `https://www.youtube.com/embed/${videosModulos[m.titulo]}`;
-                    }
+                    const videoUrl = ''; // el video lo pone sincronizarVideos()
                     await run(
                         `INSERT INTO modulos (curso_id, titulo, descripcion, video_url, lectura, quiz, orden)
                          VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -359,6 +356,9 @@ async function initDB() {
         }
         console.log('✓ Cursos y módulos estructurados cargados.');
     }
+
+    // Aplica videosModulos.js a los módulos que ya existen en la base de datos
+    await sincronizarVideos(all, run);
 }
 
 // =============================================
@@ -416,6 +416,18 @@ async function verificarAuthFirebase(req, res, next) {
             req.user = user;
             return next();
         } else {
+            // Modo desarrollo: token simulado "dev-token-<id>-<fecha>" generado en /api/login
+            if (token.startsWith('dev-token-')) {
+                const idDev = parseInt(token.split('-')[2], 10);
+                const userDev = Number.isInteger(idDev)
+                    ? await get('SELECT * FROM usuarios WHERE id = ?', [idDev])
+                    : null;
+                if (userDev) {
+                    req.user = userDev;
+                    return next();
+                }
+            }
+
             // Modo desarrollo: decodifica el token sin firma o busca por usuarioId
             try {
                 const parts = token.split('.');
@@ -815,6 +827,20 @@ app.post('/api/perfil/foto', verificarAuthFirebase, (req, res) => {
             return res.status(500).json({ error: 'No se pudo guardar la foto' });
         }
     });
+});
+
+// Guardar la edad (obligatoria para cuentas de Google y Microsoft)
+app.put('/api/perfil/edad', verificarAuthFirebase, async (req, res) => {
+    const edad = parseInt(req.body.edad, 10);
+    if (!Number.isInteger(edad) || edad < 10 || edad > 30) {
+        return res.status(400).json({ error: 'Ingresa una edad válida entre 10 y 30 años' });
+    }
+    try {
+        await run('UPDATE usuarios SET edad = ? WHERE id = ?', [edad, req.user.id]);
+        res.json({ edad });
+    } catch (e) {
+        res.status(500).json({ error: 'No se pudo guardar la edad' });
+    }
 });
 
 // =============================================

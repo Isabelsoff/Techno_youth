@@ -13,6 +13,7 @@ import {
     OAuthProvider,
     signInWithPopup,
     signOut,
+    sendPasswordResetEmail,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -34,6 +35,9 @@ let moduloActual = null;
 let preguntaQuizActual = 0;
 let puntajeQuiz = 0;
 let cursoSeleccionadoId = null;
+
+// ---- Agente de orientación vocacional con IA (Streamlit) ----
+const AGENTE_URL = "https://agente-tecnochilds.streamlit.app";
 
 // =============================================
 // SISTEMA DE NOTIFICACIONES (Toast)
@@ -109,6 +113,12 @@ function togglePassword(inputId, boton) {
 // NAVEGACIÓN ENTRE SECCIONES
 // =============================================
 function mostrar(seccion) {
+    // Si falta la edad (cuenta de Google o Microsoft), solo se puede ver esa pantalla
+    const uid = localStorage.getItem("usuarioId");
+    if (uid && localStorage.getItem("requiereEdad") === uid) {
+        seccion = "completarPerfil";
+    }
+
     document.querySelectorAll(".seccion-pantalla").forEach(div => {
         div.style.display = "none";
     });
@@ -121,6 +131,7 @@ function mostrar(seccion) {
     if (seccion === "testVocacional") cargarPreguntas();
     if (seccion === "perfil") cargarPerfil();
     if (seccion === "misRutas") cargarMisRutas();
+    if (seccion === "agente") cargarAgente();
     if (seccion === "login") resetearRecaptcha();
 
     actualizarNavegacion();
@@ -139,6 +150,7 @@ function actualizarNavegacion() {
     const navPerfil = document.getElementById("navPerfil");
     const navRutas = document.getElementById("navRutas");
     const navTest = document.getElementById("navTest");
+    const navAgente = document.getElementById("navAgente");
     const navLogout = document.getElementById("navLogout");
 
     if (navRegistro) navRegistro.style.display = logueado ? "none" : "";
@@ -155,6 +167,7 @@ function actualizarNavegacion() {
     if (navPerfil) navPerfil.style.display = logueado ? "" : "none";
     if (navRutas) navRutas.style.display = logueado ? "" : "none";
     if (navTest) navTest.style.display = logueado ? "" : "none";
+    if (navAgente) navAgente.style.display = logueado ? "" : "none";
     if (navLogout) navLogout.style.display = logueado ? "" : "none";
 }
 
@@ -451,6 +464,13 @@ async function procesarLoginSocial(fbUser, providerName) {
 
         mostrarToast(`¡Bienvenido, ${data.usuario.nombre}!`, "success");
         actualizarNavegacion();
+
+        // La edad es obligatoria para cuentas de Google y Microsoft
+        if (!data.usuario.edad) {
+            localStorage.setItem("requiereEdad", String(data.usuario.id));
+            return mostrar("completarPerfil");
+        }
+        localStorage.removeItem("requiereEdad");
         mostrar("perfil");
     } catch (e) {
         console.error("Error en procesarLoginSocial:", e);
@@ -470,6 +490,7 @@ async function cerrarSesion() {
     localStorage.removeItem("usuarioEmail");
     localStorage.removeItem("usuarioFoto");
     localStorage.removeItem("firebaseToken");
+    localStorage.removeItem("requiereEdad");
 
     actualizarNavegacion();
     mostrarToast("Sesión cerrada correctamente", "info");
@@ -496,6 +517,12 @@ async function cargarPerfil() {
         const res = await fetch(`/api/perfil/${id}`, { headers });
         if (!res.ok) throw new Error("Error obteniendo perfil");
         const user = await res.json();
+
+        // Cuentas sociales sin edad: pedirla antes de continuar
+        if (!user.edad && user.auth_provider && user.auth_provider !== "local") {
+            localStorage.setItem("requiereEdad", String(id));
+            return mostrar("completarPerfil");
+        }
 
         // Actualiza datos locales
         localStorage.setItem("usuarioNombre", user.nombre);
@@ -1113,6 +1140,86 @@ async function inicializarApp() {
 document.addEventListener("DOMContentLoaded", inicializarApp);
 
 // =============================================
+// ASESOR VOCACIONAL CON IA (agente Streamlit embebido)
+// =============================================
+function cargarAgente() {
+    const frame = document.getElementById("agenteFrame");
+    const enlace = document.getElementById("agenteAbrirNueva");
+    if (enlace) enlace.href = AGENTE_URL;
+    // Se carga una sola vez, y solo cuando el usuario abre la pantalla
+    if (frame && frame.dataset.cargado !== "1") {
+        frame.src = `${AGENTE_URL}/?embed=true&embed_options=dark_theme`;
+        frame.dataset.cargado = "1";
+    }
+}
+
+// =============================================
+// RECUPERAR CONTRASEÑA (correo de Firebase)
+// =============================================
+function abrirRecuperar() {
+    const correo = document.getElementById("emailLogin").value.trim();
+    mostrar("recuperar");
+    document.getElementById("emailRecuperar").value = correo;
+}
+
+async function recuperarPassword() {
+    const email = document.getElementById("emailRecuperar").value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return mostrarToast("Ingresa un correo electrónico válido", "warning");
+    }
+    if (!firebaseAuth) {
+        return mostrarToast("La recuperación no está disponible aún (falta configurar Firebase)", "warning");
+    }
+
+    bloquearBoton("btnRecuperar", true, "Enviando...");
+    try {
+        await sendPasswordResetEmail(firebaseAuth, email);
+    } catch (error) {
+        // Por seguridad no revelamos si el correo existe
+        const mostrables = ["auth/invalid-email", "auth/too-many-requests", "auth/network-request-failed"];
+        if (mostrables.includes(error.code)) {
+            bloquearBoton("btnRecuperar", false);
+            return mostrarToast(traducirErrorFirebase(error.code) || "No se pudo enviar el correo", "error");
+        }
+    }
+    bloquearBoton("btnRecuperar", false);
+    mostrarToast("Si el correo está registrado, te enviamos un enlace para crear una nueva contraseña. Revisa también el spam.", "success");
+    setTimeout(() => mostrar("login"), 2500);
+}
+
+// =============================================
+// EDAD OBLIGATORIA (cuentas de Google y Microsoft)
+// =============================================
+async function guardarEdad() {
+    const edad = parseInt(document.getElementById("edadPerfil").value, 10);
+    if (!Number.isInteger(edad) || edad < 10 || edad > 30) {
+        return mostrarToast("Ingresa una edad válida entre 10 y 30 años", "warning");
+    }
+
+    const token = localStorage.getItem("firebaseToken");
+    bloquearBoton("btnGuardarEdad", true, "Guardando...");
+    try {
+        const res = await fetch("/api/perfil/edad", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ edad })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            return mostrarToast(data.error || "No se pudo guardar la edad", "error");
+        }
+        localStorage.removeItem("requiereEdad");
+        mostrarToast("¡Listo! Tu perfil está completo", "success");
+        mostrar("perfil");
+    } catch (error) {
+        mostrarToast("Error al conectar con el servidor", "error");
+    } finally {
+        bloquearBoton("btnGuardarEdad", false);
+    }
+}
+
+// =============================================
 // EXPOSICIÓN GLOBAL PARA ATRIBUTOS ONCLICK
 // =============================================
 window.mostrar = mostrar;
@@ -1130,3 +1237,6 @@ window.verCurso = verCurso;
 window.verModulo = verModulo;
 window.seleccionarOpcionQuiz = seleccionarOpcionQuiz;
 window.finalizarQuiz = finalizarQuiz;
+window.abrirRecuperar = abrirRecuperar;
+window.recuperarPassword = recuperarPassword;
+window.guardarEdad = guardarEdad;

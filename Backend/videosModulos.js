@@ -1,7 +1,6 @@
-
 module.exports = {
-    
-        "Teoría del Color": "7Sc-WkcQKj4",
+    // Diseño y Creatividad
+    "Teoría del Color": "7Sc-WkcQKj4",
     "Tipografía Básica": "Z37lEQMfPtg",
     "Composición y Layout": "AgiMycqArFo", // parcial: solo cubre jerarquía visual
     // Fotografía y Composición
@@ -37,7 +36,7 @@ module.exports = {
     "Redes e Internet": "iY5B4O5vSqg",
     "Seguridad Digital": "lnZI1behi6U",
     // Comunicación Efectiva
-    "Escucha Activa": "vwYqSb9pErA",
+    "Escucha Activa": "la1F2U7YZTY",
     "Hablar en Público": "_L9jKOeRBR4",
     "Comunicación Asertiva": "42lbE_N4-bo",
     "Comunicación No Verbal": "yFIZDfSU6Wo",

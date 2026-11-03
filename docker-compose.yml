@@ -1,0 +1,17 @@
+services:
+  technoyouth:
+    build:
+      context: ./Backend
+    container_name: technoyouth-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    volumes:
+      - ./Backend:/app/Backend
+      - ./Frontend:/app/Frontend
+      - node_modules_backend:/app/Backend/node_modules
+
+volumes:
+  node_modules_backend:
